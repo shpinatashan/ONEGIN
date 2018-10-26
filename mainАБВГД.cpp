@@ -19,7 +19,8 @@ int AlphEncoding(char chr);
 const void Sort(char* text[],long long int nlines);
 int ComparatorStr(const void* ptr1,const void* ptr2);
 int check(void* ptr);
-
+int fseek( FILE * filestream, long int offset, int origin );
+void rewind ( FILE * filestream );
 
 int main()
 {
@@ -28,20 +29,24 @@ int size = st.st_size +1;
 char * buf = (char*) calloc(size, sizeof(char));
 char** text = (char**)calloc(size,sizeof(char*));
 
-check(buf);
-check(text);
+if (check(buf) == -1) return -1;
+if (check(text) == -1) return -1;
+
+FILE* f2 = fopen("result.txt", "w");
+    if (f2 == NULL)
+    {
+        printf("Cannot open file");
+    }
+fclose(f2);
+
 
 ReadPoem(size, buf);
 long long int nlines = Count_change(buf, size, text);
 printf("%ld", nlines);
-Sort(text , nlines);
-printf("\nmeow");
+
 OutputFile(text, nlines);
-
-
-
-
-
+Sort(text , nlines);
+OutputFile(text, nlines);
 
 
 free(text);
@@ -124,10 +129,6 @@ int ComparatorStr(const void* ptr1,const void* ptr2)
 
     while ((AlphEncoding( *str1) != -1) && (AlphEncoding( *str2) != -1))
     {
-       // printf ("*Str1 = %c; AlphEncoding(*str1) = %d\n", *str1, AlphEncoding(*str1));
-        //printf ("*Str2 = %c; AlphEncoding(*str2) = %d\n", *str2, AlphEncoding(*str2));
-       // Sleep(1000);
-
         while(AlphEncoding( *str1) == -2) str1++;
 
         while(AlphEncoding( *str2) == -2) str2++;
@@ -145,27 +146,19 @@ int ComparatorStr(const void* ptr1,const void* ptr2)
 
 const void Sort(char* text[],long long int nlines)
 {
-
-
-    printf("\nmeow");
     qsort(text, nlines, sizeof(char*),  ComparatorStr);
 }
 
 void OutputFile(char* text[], long long int nlines)
 {
-    FILE* f2 = fopen("result.txt", "w");
+    FILE* f2 = fopen("result.txt", "a+");
 
-    if (f2 == NULL)
-    {
-        printf("Cannot open file");
-        return;
-    }
-
-
+    fseek( f2, 0, SEEK_SET );
     for(int i = 0; i < nlines; i++)
     {
         fputs(text[i], f2);
         fprintf (f2,"\n");
     }
+
     fclose(f2);
 }
